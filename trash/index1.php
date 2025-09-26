@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management | POS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
+            color: var(--gray-800);
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            border-right: 1px solid var(--gray-200);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 2px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+        }
+
+        nav {
+            padding: 1rem 0;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav li {
+            margin: 0.25rem 0;
+        }
+
+        nav li a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--gray-600);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-radius: 0 25px 25px 0;
+            margin-right: 1rem;
+            font-weight: 500;
+        }
+
+        nav li a:hover {
+            color: var(--primary);
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+            transform: translateX(5px);
+        }
+
+        nav li.active a {
+            color: var(--primary);
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.08) 100%);
+            border-right: 3px solid var(--primary);
+        }
+
+        nav li a i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            margin-left: 280px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: transparent;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            display: none;
+            padding: 0.5rem;
+            border-radius: var(--radius);
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .page-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--gray-500);
+            font-size: 0.9rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-lg);
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-profile:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .user-profile span {
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        /* Inventory Header */
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card .content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-card .info h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-card .info p {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-card .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .stat-card.low-stock .icon {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+        }
+
+        .stat-card.out-stock .icon {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+        }
+
+        .stat-card.total-value .icon {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+        }
+
+        /* Action Buttons */
+        .inventory-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+
+        .search-filter-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-input {
+            position: relative;
+        }
+
+        .search-input input {
+            padding-left: 2.5rem;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+        }
+
+        /* Inventory Table */
+        .inventory-table-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .inventory-table th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .inventory-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius);
+            object-fit: cover;
+        }
+
+        .product-details h4 {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .product-details p {
+            color: var(--gray-500);
+            font-size: 0.8rem;
+        }
+
+        .stock-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stock-badge.in-stock {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .stock-badge.low-stock {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .stock-badge.out-of-stock {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+        }
+
+        .btn-edit {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .btn-edit:hover {
+            background: var(--info);
+            color: var(--white);
+        }
+
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        /* Floating Action Button */
+        .floating-menu {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-xl);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1000;
+            border: none;
+        }
+
+        .floating-menu:hover {
+            transform: scale(1.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-400);
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .close-modal:hover {
+            color: var(--gray-600);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .floating-menu {
+                display: flex;
+            }
+
+            .user-profile span {
+                display: none;
+            }
+
+            .inventory-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .inventory-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .inventory-actions {
+                justify-content: stretch;
+            }
+
+            .inventory-actions .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .search-filter-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .inventory-table {
+                font-size: 0.85rem;
+            }
+
+            .inventory-table th,
+            .inventory-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .product-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .product-image {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Dark overlay for mobile sidebar */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Dark Overlay for Mobile -->
+        <div class="overlay" id="overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-cash-register"></i>
+                <span>POS Admin</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="../index.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li class="active"><a href="#"><i class="fas fa-boxes"></i> Inventory</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Employees</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Reports</a></li>
+                    <li><a href="#"><i class="fas fa-tags"></i> Categories</a></li>
+                    <li><a href="#"><i class="fas fa-shopping-cart"></i> Sales</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1>Inventory Management</h1>
+                    <p>Manage your products, stock levels, and inventory data</p>
+                </div>
+                <button class="menu-toggle" id="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="user-profile">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" alt="Admin">
+                    <span>John Admin</span>
+                </div>
+            </header>
+
+            <!-- Inventory Header with Stats -->
+            <div class="inventory-header">
+                <div class="inventory-stats">
+                    <div class="stat-card">
+                        <div class="content">
+                            <div class="info">
+                                <h3>247</h3>
+                                <p>Total Products</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card low-stock">
+                        <div class="content">
+                            <div class="info">
+                                <h3>24</h3>
+                                <p>Low Stock Items</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card out-stock">
+                        <div class="content">
+                            <div class="info">
+                                <h3>6</h3>
+                                <p>Out of Stock</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-times-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card total-value">
+                        <div class="content">
+                            <div class="info">
+                                <h3>$52,847</h3>
+                                <p>Total Inventory Value</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="inventory-actions">
+                    <button class="btn btn-primary" onclick="openAddProductModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Product
+                    </button>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-file-import"></i>
+                        Import CSV
+                    </button>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-file-export"></i>
+                        Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="search-filter-section">
+                <div class="search-filter-row">
+                    <div class="form-group">
+                        <label for="search">Search Products</label>
+                        <div class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="search" class="form-control" placeholder="Search by name, SKU, or barcode...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" class="form-control">
+                            <option value="">All Categories</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="food">Food</option>
+                            <option value="electronics">Electronics</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock-status">Stock Status</label>
+                        <select id="stock-status" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="inventory-table-container">
+                <div class="table-header">
+                    <h3>Product Inventory</h3>
+                </div>
+                <div class="table-wrapper">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>SKU</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock Qty</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody">
+                            <tr>
+                                <td>
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=100&h=100&fit=crop" alt="Coffee" class="product-image">
+                                        <div class="product-details">
+                                            <h4>Premium Coffee Beans</h4>
+                                            <p>Arabica blend, 500g</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>CFE-001</td>
+                                <td>Beverages</td>
+                                <td>$24.99</td>
+                                <td>45</td>
+                                <td><span class="stock-badge in-stock">In Stock</span></td>
+                                <td>2 hours ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-sm btn-edit" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-sm btn-delete" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=100&h=100& 
+                                                                            <img src="https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=100&h=100&fit=crop" alt="Green Tea" class="product-image">
+                                        <div class="product-details">
+                                            <h4>Organic Green Tea</h4>
+                                            <p>Loose leaf, 250g</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>GRT-014</td>
+                                <td>Beverages</td>
+                                <td>$12.50</td>
+                                <td>20</td>
+                                <td><span class="stock-badge low-stock">Low Stock</span></td>
+                                <td>5 hours ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-sm btn-edit" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-sm btn-delete" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1600180758890-6e398ba58eeb?w=100&h=100&fit=crop" alt="Almond Milk" class="product-image">
+                                        <div class="product-details">
+                                            <h4>Almond Milk</h4>
+                                            <p>1L bottle</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>ALM-007</td>
+                                <td>Dairy Alternatives</td>
+                                <td>$4.99</td>
+                                <td>0</td>
+                                <td><span class="stock-badge out-of-stock">Out of Stock</span></td>
+                                <td>1 day ago</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-sm btn-edit" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-sm btn-delete" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>

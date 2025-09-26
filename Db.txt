@@ -1,0 +1,185 @@
+CREATE DATABASE IF NOT EXISTS mobpos;
+USE mobpos;
+
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('cashier', 'admin') NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    last_login DATETIME,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description TEXT,
+    parent_id INT,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES categories(category_id)
+);
+
+CREATE TABLE products (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    barcode VARCHAR(50) UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    category_id INT,
+    price DECIMAL(10,2) NOT NULL,
+    cost DECIMAL(10,2),
+    stock INT NOT NULL DEFAULT 0,
+    min_stock INT DEFAULT 5,
+    image_path VARCHAR(255),
+    tax_rate DECIMAL(5,2) DEFAULT 0,
+    status ENUM('active', 'inactive') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    address TEXT,
+    loyalty_points INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE sales (
+    sale_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    customer_id INT,
+    transaction_code VARCHAR(20) UNIQUE NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    tax_amount DECIMAL(10,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0,
+    total DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('cash', 'card', 'mobile', 'mixed') NOT NULL,
+    payment_details TEXT,
+    status ENUM('completed', 'refunded', 'cancelled') DEFAULT 'completed',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE TABLE sale_items (
+    sale_item_id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+    discount DECIMAL(10,2) DEFAULT 0,
+    tax_rate DECIMAL(5,2) NOT NULL,
+    total_price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (sale_id) REFERENCES sales(sale_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE inventory_logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    quantity_change INT NOT NULL COMMENT 'Positive for additions, negative for deductions',
+    previous_stock INT NOT NULL,
+    new_stock INT NOT NULL,
+    type ENUM('purchase', 'sale', 'return', 'adjustment', 'damage') NOT NULL,
+    reference_id INT COMMENT 'Sale ID or purchase order ID',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE shifts (
+    shift_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME,
+    starting_cash DECIMAL(10,2) NOT NULL,
+    ending_cash DECIMAL(10,2),
+    status ENUM('open', 'closed') DEFAULT 'open',
+    notes TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+
+CREATE TABLE settings (
+    setting_id INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(50) UNIQUE NOT NULL,
+    setting_value TEXT NOT NULL,
+    description TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Insert admin user (default password should be changed after first login)
+INSERT INTO users (username, password_hash, role, full_name, email, status)
+VALUES (
+    'admin', 
+    '$2y$10$IUu5e3LZPESXJVKqDQo.QOXz25NswkSfOk1FTWK6bx7KlO9VkJVVG', -- bcrypt hash of 'admin123'
+    'admin',
+    'System Administrator',
+    'admin@example.com',
+    'active'
+);
+
+-- Insert parent categories
+INSERT INTO categories (name, description) VALUES
+('Electronics', 'Electronic devices and accessories'),
+('Groceries', 'Food and household items');
+
+-- Insert child categories (note the parent_id references)
+INSERT INTO categories (name, description, parent_id) VALUES
+('Smartphones', 'Mobile phones and accessories', 1),
+('Laptops', 'Portable computers and accessories', 1);
+
+
+-- Electronics - Smartphones
+INSERT INTO products (barcode, name, description, category_id, price, cost, stock, min_stock, tax_rate) VALUES
+('123456789012', 'iPhone 15 Pro', 'Latest Apple smartphone with A17 Pro chip', 3, 999.00, 750.00, 50, 10, 8.50),
+('234567890123', 'Samsung Galaxy S24', 'Android flagship with 200MP camera', 3, 899.99, 700.00, 45, 8, 8.50),
+('345678901234', 'Google Pixel 8', 'AI-powered smartphone with best-in-class camera', 3, 699.00, 550.00, 30, 5, 8.50);
+
+-- Electronics - Laptops
+INSERT INTO products (barcode, name, description, category_id, price, cost, stock, min_stock, tax_rate) VALUES
+('456789012345', 'MacBook Pro 16" M3', 'Professional laptop with M3 Max chip', 4, 2499.00, 2000.00, 25, 5, 8.50),
+('567890123456', 'Dell XPS 15', 'Premium Windows laptop with OLED display', 4, 1799.99, 1400.00, 20, 5, 8.50),
+('678901234567', 'Lenovo ThinkPad X1 Carbon', 'Business ultrabook with military-grade durability', 4, 1599.00, 1200.00, 18, 4, 8.50),
+('789012345678', 'HP Spectre x360', 'Convertible laptop with 4K touchscreen', 4, 1399.99, 1100.00, 15, 3, 8.50);
+
+-- Groceries
+INSERT INTO products (barcode, name, description, category_id, price, cost, stock, min_stock, tax_rate) VALUES
+('890123456789', 'Organic Bananas', 'Fair trade organic bananas per lb', 2, 0.69, 0.45, 200, 50, 5.00),
+('901234567890', 'Free Range Eggs', 'Dozen large free range eggs', 2, 4.99, 3.50, 150, 30, 5.00),
+('012345678901', 'Whole Grain Bread', 'Artisan whole grain bread loaf', 2, 5.49, 3.80, 80, 20, 5.00),
+('123450987654', 'Almond Milk', 'Unsweetened vanilla almond milk 64oz', 2, 3.99, 2.50, 60, 15, 5.00),
+('234561098765', 'Organic Spinach', 'Fresh organic spinach 10oz bag', 2, 3.49, 2.20, 90, 25, 5.00),
+('345672109876', 'Greek Yogurt', 'Plain non-fat Greek yogurt 32oz', 2, 4.79, 3.00, 70, 20, 5.00),
+('456783210987', 'Dark Chocolate', '70% cocoa dark chocolate bar 3.5oz', 2, 3.29, 2.00, 120, 30, 5.00),
+('567894321098', 'Quinoa', 'Organic quinoa 16oz bag', 2, 6.99, 4.50, 50, 15, 5.00);
+
+-- Insert default categories
+-- INSERT INTO categories (name, description) VALUES 
+-- ('Uncategorized', 'Default category for products'),
+-- ('Food', 'Food items'),
+-- ('Beverages', 'Drinks and beverages'),
+-- ('Electronics', 'Electronic devices');
+
+-- Insert default settings
+INSERT INTO settings (setting_key, setting_value, description) VALUES
+('store_name', 'My POS Store', 'Name of the store'),
+('tax_rate', '7.5', 'Default tax rate in percentage'),
+('currency', '$', 'Currency symbol'),
+('receipt_header', 'THANK YOU FOR SHOPPING WITH US!', 'Receipt header text'),
+('receipt_footer', 'PLEASE COME AGAIN!', 'Receipt footer text');

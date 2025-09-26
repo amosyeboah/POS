@@ -1,0 +1,279 @@
+/* Dashboard Specific Styles */
+.dashboard-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f5f7fa;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.shift-status {
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+}
+
+.btn-logout {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--dark-gray);
+    cursor: pointer;
+}
+
+.stats-container {
+    display: flex;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+.stat-card {
+    flex: 1;
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.sales {
+    background-color: var(--success-color);
+}
+
+.stat-icon.transactions {
+    background-color: var(--accent-color);
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--dark-gray);
+}
+
+.section-title {
+    font-size: 1.1rem;
+    margin: 1rem 0 0.75rem 1rem;
+    color: var(--dark-gray);
+}
+
+.quick-actions {
+    padding: 0 1rem;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.action-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.action-card.new-sale .action-icon {
+    background-color: var(--success-color);
+}
+
+.action-card.returns .action-icon {
+    background-color: var(--danger-color);
+}
+
+.action-card.shift .action-icon {
+    background-color: var(--primary-color);
+}
+
+.action-card.history .action-icon {
+    background-color: var(--accent-color);
+}
+
+.action-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.quick-products {
+    padding: 0 1rem;
+}
+
+.product-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.product-chip {
+    flex: 0 0 auto;
+    background-color: white;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.product-chip:hover {
+    background-color: var(--light-gray);
+}
+
+.product-name {
+    margin-right: 0.5rem;
+    font-weight: 500;
+}
+
+.product-price {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.recent-transactions {
+    flex: 1;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.transactions-list {
+    flex: 1;
+    background-color: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    overflow-y: auto;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.transaction-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction-id {
+    font-weight: 500;
+}
+
+.transaction-time {
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+}
+
+.transaction-amount {
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+.view-all {
+    display: block;
+    text-align: right;
+    margin-top: 0.5rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .dashboard-container {
+        max-width: 768px;
+    }
+    
+    .action-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .stats-container {
+        padding: 1.5rem;
+    }
+    
+    .quick-actions, .quick-products, .recent-transactions {
+        padding: 0 1.5rem;
+    }
+}

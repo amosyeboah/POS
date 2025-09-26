@@ -1,0 +1,40 @@
+mob-pos/
+├── assets/
+│   ├── css/
+│   │   ├── main.css
+│   │   ├── cashier.css
+│   │   └── admin.css
+│   ├── js/
+│   │   ├── main.js
+│   │   ├── cashier.js
+│   │   ├── admin.js
+│   │   └── utils.js
+│   └── images/
+│       └── products/
+├── includes/
+│   ├── config.php
+│   ├── db.php
+│   ├── auth.php
+│   ├── functions.php
+│   └── header.php
+├── cashier/
+│   ├── dashboard.php
+│   ├── sales.php
+│   ├── returns.php
+│   └── shift.php
+├── admin/
+│   ├── dashboard.php
+│   ├── inventory/
+│   │   ├── products.php
+│   │   └── categories.php
+│   ├── employees/
+│   │   ├── list.php
+│   │   └── add.php
+│   ├── reports/
+│   │   ├── sales.php
+│   │   └── inventory.php
+│   └── settings.php
+├── auth/
+│   ├── login.php
+│   └── logout.php
+└── index.php
